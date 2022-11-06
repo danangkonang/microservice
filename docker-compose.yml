@@ -1,0 +1,58 @@
+version: "3.8"
+services:
+  db_user:
+    image: postgres:9.6.21-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=user
+    ports:
+      - "5000:5432"
+    networks:
+      - backend
+    # volumes:
+    #   - pg-book:/var/lib/postgresql/data
+    container_name: db-user
+  db_product:
+    image: postgres:9.6.21-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=product
+    ports:
+      - "5001:5432"
+    networks:
+      - backend
+    # volumes:
+    #   - pg-book:/var/lib/postgresql/data
+    container_name: db-product
+  user_svc:
+    build:
+      context: ./user
+      dockerfile: Dockerfile
+    ports:
+    - "9000:9000"
+    depends_on: 
+      - db_user
+    networks:
+      - backend
+    container_name: micro-user
+  product_svc:
+    build:
+      context: ./product
+      dockerfile: Dockerfile
+    ports:
+    - "9001:9001"
+    depends_on: 
+      - db_product
+    networks:
+      - backend
+    container_name: micro-product
+
+networks:
+  backend:
+    # driver: host
+    # network_mode: host
+    # driver: custom-driver-1
